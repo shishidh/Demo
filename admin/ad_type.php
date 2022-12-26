@@ -1,5 +1,5 @@
 <?php
-require_once ('../base/connect.php');
+require_once('../base/connect.php');
 
 // code = 2  一率導回登入頁
 if (!isset($_SESSION['username'])) {
@@ -70,10 +70,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
 
             $ad_class = $db->where('id', $post['id'])->get('ad_class');
+            $ad_list = $db->where('type_id', $post['id'])->get('ad_list');
 
             if (empty($ad_class)) {
                 $return['code'] = 0;
                 $return['msg'] = '廣告不存在';
+                exit(json_encode($return));
+            }
+
+            if ($ad_list) {
+                $return['code'] = 0;
+                $return['msg'] = '分類底下尚有項目';
                 exit(json_encode($return));
             }
 

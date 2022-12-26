@@ -1,5 +1,5 @@
 <?php
-require_once ('../base/connect.php');
+require_once('../base/connect.php');
 
 // code = 2  一率導回登入頁
 if (isset($_SESSION['username'])) {
@@ -32,7 +32,7 @@ if (isset($_SESSION['username'])) {
         exit(json_encode($return));
     }
 
-    $user = $db->where('username', $post['username'])->where('password', md5($post['password']))->get('user_list');
+    $user = $db->where('username', $post['username'])->where('password', $post['password'])->get('user_list');
 
     if (empty($user)) {
         $return['code'] = 0;
@@ -43,10 +43,10 @@ if (isset($_SESSION['username'])) {
     // 更新登入資訊
     $update['login_ip'] = $_SERVER['REMOTE_ADDR'];
     $update['login_time'] = date('Y-m-d H:i:s');
-    $res = $db->where('username', $post['username'])->where('password', md5($post['password']))->update('user_list', $update);
+    $res = $db->where('username', $post['username'])->where('password', $post['password'])->update('user_list', $update);
 
     $_SESSION['username'] = $post['username'];
-    $_SESSION['password'] = md5($post['password']);
+    $_SESSION['password'] = $post['password'];
 
     $return['code'] = 1;
     $return['msg'] = '登入成功';

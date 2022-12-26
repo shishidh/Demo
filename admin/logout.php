@@ -1,5 +1,5 @@
 <?php
-require_once ('../base/connect.php');
+require_once('../base/connect.php');
 
 session_unset();
 session_destroy();
