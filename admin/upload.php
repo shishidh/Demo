@@ -33,7 +33,7 @@ $file = $filepath . $img_name;
 if (move_uploaded_file($tmp, $file)) {
     $return['code'] = 1;
     $return['msg'] = '上傳成功';
-    $return['src'] = '/file/' . $img_name . time();
+    $return['src'] = '/file/' . $img_name . '?' . time();
     exit(json_encode($return));
 } else {
     $return['code'] = 0;
