@@ -26,14 +26,14 @@ if (empty($_FILES['image'])) {
 }
 
 $img_name = $_FILES['image']['name'];
-$tmp = $_FILES['image']['tmp_name'];
+$tmp = $_FILES['image']['tmp_name'] . '?' . time();
 $filepath = dirname(dirname(__FILE__)) . '/file/';
 $file = $filepath . $img_name;
 
 if (move_uploaded_file($tmp, $file)) {
     $return['code'] = 1;
     $return['msg'] = '上傳成功';
-    $return['src'] = '/file/' . $img_name . '?' . time();
+    $return['src'] = '/file/' . $img_name;
     exit(json_encode($return));
 } else {
     $return['code'] = 0;
