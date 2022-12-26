@@ -26,7 +26,7 @@ if (empty($_FILES['image'])) {
 }
 
 $img_name = $_FILES['image']['name'];
-$tmp = $_FILES['image']['tmp_name'] . '?' . time();
+$tmp = $_FILES['image']['tmp_name'];
 $filepath = dirname(dirname(__FILE__)) . '/file/';
 $file = $filepath . $img_name;
 
