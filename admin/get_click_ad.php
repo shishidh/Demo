@@ -22,7 +22,7 @@ if (!isset($_SESSION['username'])) {
 $now_time = new DateTime();
 $three_time = new DateTime('-3 month');
 
-$click_list = $db->where('click_time', array($now_time->format('Y-m-d'), $three_time->format('Y-m-d')), 'BETWEEN')->get('click_list');
+$click_list = $db->where('click_time', array($three_time->format('Y-m-d'), $now_time->format('Y-m-d')), 'BETWEEN')->get('click_list');
 
 $return['code'] = 1;
 $return['data'] = $click_list;
