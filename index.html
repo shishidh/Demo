@@ -15,7 +15,7 @@
     gtag('config', 'UA-254356546-1');
   </script>
   <script src="./env.js"></script>
-  <script type="module" crossorigin src="/frontend/js/index-e9a2fe31.js"></script>
+  <script type="module" crossorigin src="/frontend/js/index-5de01de7.js"></script>
   <link rel="stylesheet" href="/frontend/css/index-83dd5498.css">
 </head>
 
@@ -28,8 +28,7 @@
         if (e.origin !== "https://shishi01.com") {
           return
         }
-        let val = e.data;
-        sessionStorage.setItem("app", val);
+        window.isApp = e.data;
       });
     }
   </script>
