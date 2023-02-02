@@ -18,7 +18,8 @@
   <script>
     window.onload = function () {
       window.addEventListener('message', function (e) {
-        localStorage.setItem("app", e.data);
+        let val = e.data;
+        localStorage.setItem("app", val);
       });
     }
   </script>
