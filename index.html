@@ -15,14 +15,6 @@
     gtag('config', 'UA-254356546-1');
   </script>
   <script src="./env.js"></script>
-  <script>
-    window.onload = function () {
-      window.addEventListener('message', function (e) {
-        let val = e.data;
-        localStorage.setItem("app", val);
-      });
-    }
-  </script>
   <script type="module" crossorigin src="/frontend/js/index-ba885464.js"></script>
   <link rel="stylesheet" href="/frontend/css/index-83dd5498.css">
 </head>
@@ -30,6 +22,15 @@
 <body>
   <div id="app"></div>
   
+  <script>
+    window.onload = function () {
+      window.addEventListener('message', function (e) {
+        console.log(e.data);
+        let val = e.data;
+        localStorage.setItem("app", val);
+      });
+    }
+  </script>
 </body>
 
 </html>
