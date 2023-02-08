@@ -50,6 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit(json_encode($return));
             }
 
+            $has_sort = $db->where('sort', trim($post['sort']))->get('ad_list');
+
+            if ($has_sort) {
+                $return['code'] = 0;
+                $return['msg'] = '已有相同排序';
+                exit(json_encode($return));
+            }
+
             $insert = [
                 'type_id' => $post['type_id'],
                 'sort' => trim($post['sort']),
@@ -123,6 +131,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             } else if (empty($post['type_id']) || empty($post['sort']) || empty($post['image_url']) || empty($post['real_name']) || empty($post['show_name']) || empty($post['link_url']) || empty($post['ad_status'])) {
                 $return['code'] = 0;
                 $return['msg'] = '尚有項目未填寫';
+                exit(json_encode($return));
+            }
+
+            $has_sort = $db->where('sort', trim($post['sort']))->get('ad_list');
+
+            if ($has_sort) {
+                $return['code'] = 0;
+                $return['msg'] = '已有相同排序';
                 exit(json_encode($return));
             }
 
