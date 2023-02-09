@@ -21,10 +21,29 @@ if (!isset($_SESSION['username'])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $get = $_GET;
+    $type_text = '';
+    switch ($get['type_id']) {
+        case '1':
+            $type_text = 'carousel_list';
+            break;
+        case '2':
+            $type_text = 'popup_list';
+            break;
+        case '3':
+            $type_text = 'banner_list';
+            break;
+        case '4':
+            $type_text = 'bottom_list';
+            break;
+
+        default:
+            $type_text = 'ad_list';
+            break;
+    }
 
     if ($get['type_id']) {
         $ad_type = $db->orderBy('sort', 'asc')->get('ad_class');
-        $ad_list = $db->where('type_id', $get['type_id'])->orderBy('sort', 'asc')->get('ad_list');
+        $ad_list = $db->where('type_id', $get['type_id'])->orderBy('sort', 'asc')->get($type_text);
 
         $return['code'] = 1;
         $return['data']['ad_type'] = $ad_type;
@@ -32,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         exit(json_encode($return));
     } else {
         $ad_type = $db->orderBy('sort', 'asc')->get('ad_class');
-        $ad_list = $db->orderBy('sort', 'asc')->get('ad_list');
+        $ad_list = $db->orderBy('sort', 'asc')->get($type_text);
 
         $return['code'] = 1;
         $return['data']['ad_type'] = $ad_type;
@@ -41,6 +60,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $post = $_POST;
+    $type_text = '';
+    switch ($post['type_id']) {
+        case '1':
+            $type_text = 'carousel_list';
+            break;
+        case '2':
+            $type_text = 'popup_list';
+            break;
+        case '3':
+            $type_text = 'banner_list';
+            break;
+        case '4':
+            $type_text = 'bottom_list';
+            break;
+
+        default:
+            $type_text = 'ad_list';
+            break;
+    }
 
     switch ($post['type']) {
         case 'add':
@@ -50,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit(json_encode($return));
             }
 
-            $has_sort = $db->where('sort', trim($post['sort']))->get('ad_list');
+            $has_sort = $db->where('sort', trim($post['sort']))->get($type_text);
 
             if ($has_sort) {
                 $return['code'] = 0;
@@ -71,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             ];
 
             try {
-                $res = $db->insert('ad_list', $insert);
+                $res = $db->insert($type_text, $insert);
 
                 if ($res) {
                     $return['code'] = 1;
@@ -96,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit(json_encode($return));
             }
 
-            $ad_list = $db->where('id', $post['id'])->get('ad_list');
+            $ad_list = $db->where('id', $post['id'])->get($type_text);
 
             if (empty($ad_list)) {
                 $return['code'] = 0;
@@ -105,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
 
             try {
-                $res = $db->where('id', $post['id'])->delete('ad_list');
+                $res = $db->where('id', $post['id'])->delete($type_text);
 
                 if ($res) {
                     $return['code'] = 1;
@@ -135,7 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
 
             $this_id = $post['id'];
-            $has_sort = $db->where ("id != $this_id")->where('sort', trim($post['sort']))->get('ad_list');
+            $has_sort = $db->where("id != $this_id")->where('sort', trim($post['sort']))->get($type_text);
 
             if ($has_sort) {
                 $return['code'] = 0;
@@ -143,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit(json_encode($return));
             }
 
-            $ad_list = $db->where('id', $post['id'])->get('ad_list');
+            $ad_list = $db->where('id', $post['id'])->get($type_text);
 
             if (empty($ad_list)) {
                 $return['code'] = 0;
@@ -163,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             ];
 
             try {
-                $res = $db->where('id', $post['id'])->update('ad_list', $update);
+                $res = $db->where('id', $post['id'])->update($type_text, $update);
 
                 if ($res) {
                     $return['code'] = 1;

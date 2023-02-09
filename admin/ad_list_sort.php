@@ -20,6 +20,25 @@ if (!isset($_SESSION['username'])) {
 }
 
 $post = $_POST;
+$type_text = '';
+switch ($post['type_id']) {
+    case '1':
+        $type_text = 'carousel_list';
+        break;
+    case '2':
+        $type_text = 'popup_list';
+        break;
+    case '3':
+        $type_text = 'banner_list';
+        break;
+    case '4':
+        $type_text = 'bottom_list';
+        break;
+
+    default:
+        $type_text = 'ad_list';
+        break;
+}
 
 if (empty($post['id']) || empty($post['new_sort']) || empty($post['old_sort'])) {
     $return['code'] = 0;
@@ -27,7 +46,7 @@ if (empty($post['id']) || empty($post['new_sort']) || empty($post['old_sort'])) 
     exit(json_encode($return));
 }
 
-$this_class = $db->where('id', $post['id'])->get('ad_list');
+$this_class = $db->where('id', $post['id'])->get($type_text);
 
 if (empty($this_class)) {
     $return['code'] = 0;
@@ -36,9 +55,9 @@ if (empty($this_class)) {
 }
 
 if ($post['new_sort'] > $post['old_sort']) {
-    $between_class = $db->where('sort', array($post['old_sort'] - 1, $post['new_sort']), 'BETWEEN')->get('ad_list');
+    $between_class = $db->where('sort', array($post['old_sort'] - 1, $post['new_sort']), 'BETWEEN')->get($type_text);
 } else {
-    $between_class = $db->where('sort', array($post['new_sort'], $post['old_sort'] - 1), 'BETWEEN')->get('ad_list');
+    $between_class = $db->where('sort', array($post['new_sort'], $post['old_sort'] - 1), 'BETWEEN')->get($type_text);
 }
 
 $updateData = "";
@@ -63,12 +82,12 @@ foreach ($between_class as &$value) {
     }
 }
 
-$sqlStr = "replace into `ad_list` (id,type_id,sort,image_url,real_name,show_name,link_url,ad_status,click_number,remark,create_time) values $updateData";
+$sqlStr = "replace into `$type_text` (id,type_id,sort,image_url,real_name,show_name,link_url,ad_status,click_number,remark,create_time) values $updateData";
 $sql  = rtrim($sqlStr, ",");
 
 try {
     $db->startTransaction();
-    $res1 = $db->where('id', $post['id'])->update('ad_list', ['sort' => $post['new_sort']]);
+    $res1 = $db->where('id', $post['id'])->update($type_text, ['sort' => $post['new_sort']]);
     $res2 = $db->rawQuery($sql);
 
     if ($res1) {
