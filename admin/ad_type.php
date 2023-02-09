@@ -122,7 +122,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit(json_encode($return));
             }
 
-            $has_sort = $db->where('sort', trim($post['sort']))->get('ad_class');
+            $this_id = $post['id'];
+            $has_sort = $db->where ("id != $this_id")->where('sort', trim($post['sort']))->get('ad_class');
 
             if ($has_sort) {
                 $return['code'] = 0;
