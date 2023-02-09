@@ -2,6 +2,25 @@
 require_once('../base/connect.php');
 
 $post = $_POST;
+$type_text = '';
+switch ($post['type_id']) {
+    case '1':
+        $type_text = 'carousel_list';
+        break;
+    case '2':
+        $type_text = 'popup_list';
+        break;
+    case '3':
+        $type_text = 'banner_list';
+        break;
+    case '4':
+        $type_text = 'bottom_list';
+        break;
+
+    default:
+        $type_text = 'ad_list';
+        break;
+}
 
 if (empty($post['ad_id'])) {
     $return['code'] = 0;
@@ -24,7 +43,7 @@ if ($ad_click) {
 
     $db->startTransaction();
     $res1 = $db->where('ad_id', $post['ad_id'])->where('click_time', $now_time->format('Y-m-d'))->update('click_list', $update1);
-    $res2 = $db->where('id', $post['ad_id'])->update('ad_list', $update2);
+    $res2 = $db->where('id', $post['ad_id'])->update($type_text, $update2);
 
     if (!$res1 && !$res2) {
         $db->rollback();
@@ -43,7 +62,7 @@ if ($ad_click) {
 
     $db->startTransaction();
     $res1 = $db->insert('click_list', $insert);
-    $res2 = $db->where('id', $post['ad_id'])->update('ad_list', $update);
+    $res2 = $db->where('id', $post['ad_id'])->update($type_text, $update);
 
     if (!$res1 && !$res2) {
         $db->rollback();
