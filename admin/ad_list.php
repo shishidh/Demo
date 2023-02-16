@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     switch ($post['type']) {
         case 'add':
-            if (empty($post['type_id']) || empty($post['sort']) || empty($post['image_url']) || empty($post['image_code']) || empty($post['real_name']) || empty($post['show_name']) || empty($post['link_url']) || empty($post['ad_status'])) {
+            if (empty($post['type_id']) || empty($post['sort']) || empty($post['image_url']) || empty($post['real_name']) || empty($post['show_name']) || empty($post['link_url']) || empty($post['ad_status'])) {
                 $return['code'] = 0;
                 $return['msg'] = '尚有項目未填寫';
                 exit(json_encode($return));
@@ -100,7 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'type_id' => $post['type_id'],
                 'sort' => trim($post['sort']),
                 'image_url' => trim($post['image_url']),
-                'image_code' => trim($post['image_code']),
                 'real_name' => trim($post['real_name']),
                 'show_name' => trim($post['show_name']),
                 'link_url' => trim($post['link_url']),
@@ -167,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $return['code'] = 0;
                 $return['msg'] = '參數錯誤';
                 exit(json_encode($return));
-            } else if (empty($post['type_id']) || empty($post['sort']) || empty($post['image_url']) || empty($post['image_code']) || empty($post['real_name']) || empty($post['show_name']) || empty($post['link_url']) || empty($post['ad_status'])) {
+            } else if (empty($post['type_id']) || empty($post['sort']) || empty($post['image_url']) || empty($post['real_name']) || empty($post['show_name']) || empty($post['link_url']) || empty($post['ad_status'])) {
                 $return['code'] = 0;
                 $return['msg'] = '尚有項目未填寫';
                 exit(json_encode($return));
@@ -194,7 +193,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'type_id' => $post['type_id'],
                 'sort' => trim($post['sort']),
                 'image_url' => trim($post['image_url']),
-                'image_code' => trim($post['image_code']),
                 'real_name' => trim($post['real_name']),
                 'show_name' => trim($post['show_name']),
                 'link_url' => trim($post['link_url']),
