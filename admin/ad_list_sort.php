@@ -76,7 +76,6 @@ foreach ($between_class as &$value) {
         $this_id = $value['id'];
         $this_type_id = $value['type_id'];
         $this_image_url = $value['image_url'];
-        $this_image_code = $value['image_code'];
         $this_real_name = $value['real_name'];
         $this_show_name = $value['show_name'];
         $this_link_url = $value['link_url'];
@@ -89,11 +88,11 @@ foreach ($between_class as &$value) {
         } else {
             $this_sort = $value['sort'] + 1;
         }
-        $updateData = $updateData . "($this_id,'$this_type_id','$this_sort','$this_image_url','$this_real_name','$this_show_name','$this_link_url','$this_ad_status','$this_click_number','$this_remark','$this_create_time','$this_image_code'),";
+        $updateData = $updateData . "($this_id,'$this_type_id','$this_sort','$this_image_url','$this_real_name','$this_show_name','$this_link_url','$this_ad_status','$this_click_number','$this_remark','$this_create_time'),";
     }
 }
 
-$sqlStr = "replace into `$type_text` (id,type_id,sort,image_url,real_name,show_name,link_url,ad_status,click_number,remark,create_time,image_code) values $updateData";
+$sqlStr = "replace into `$type_text` (id,type_id,sort,image_url,real_name,show_name,link_url,ad_status,click_number,remark,create_time) values $updateData";
 $sql  = rtrim($sqlStr, ",");
 
 try {
