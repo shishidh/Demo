@@ -31,7 +31,7 @@ if (empty($post['ad_id'])) {
 $now_time = new DateTime();
 $tw_time = new DateTime('+1 day');
 $ad_click = $db->where('ad_id', $post['ad_id'])->where('click_time', array($now_time->format('Y-m-d'), $tw_time->format('Y-m-d')), 'BETWEEN')->getOne("click_list",  "*");
-$ad_list = $db->where('id', $post['ad_id'])->getOne("ad_list",  "*");
+$ad_list = $db->where('id', $post['ad_id'])->getOne($type_text,  "*");
 
 if ($ad_click) {
     $update1 = [
