@@ -35,36 +35,49 @@ if (empty($this_class)) {
     exit(json_encode($return));
 }
 
-if ($post['new_sort'] > $post['old_sort']) {
-    $between_class = $db->where('sort', array($post['old_sort'] - 1, $post['new_sort']), 'BETWEEN')->get('ad_class');
-} else {
-    $between_class = $db->where('sort', array($post['new_sort'], $post['old_sort'] - 1), 'BETWEEN')->get('ad_class');
-}
-
-$updateData = "";
-foreach ($between_class as &$value) {
-    if ($value['id'] != $post['id']) {
-        $this_id = $value['id'];
-        $this_name = $value['type_name'];
-        if ($post['new_sort'] > $post['old_sort']) {
-            $this_sort = $value['sort'] - 1;
-        } else {
-            $this_sort = $value['sort'] + 1;
-        }
-        $updateData = $updateData . "($this_id,'$this_name','$this_sort'),";
-    }
-}
-
-$sqlStr = "replace into `ad_class` (id,type_name,sort) values $updateData";
-$sql  = rtrim($sqlStr, ",");
-
 try {
-    $res1 = $db->where('id', $post['id'])->update('ad_class', ['sort' => $post['new_sort']]);
-    $res2 = $db->rawQuery($sql);
+    $db->startTransaction();
+    if ($post['new_sort'] > $post['old_sort']) {
+        $res1 = $db->where('sort', $post['new_sort'])->update('ad_class', ['sort' => $post['new_sort'] - 0.1]);
+    } else {
+        $res1 = $db->where('sort', $post['new_sort'])->update('ad_class', ['sort' => $post['new_sort'] + 0.1]);
+    }
+    $res2 = $db->where('id', $post['id'])->update('ad_class', ['sort' => $post['new_sort']]);
+    
+    if ($res1 && $res2) {
+        $db->commit();
+        $between_class = $db->orderBy('sort', 'asc')->get('ad_class');
 
-    if ($res1) {
-        $return['code'] = 1;
-        exit(json_encode($return));
+        $updateData = "";
+        foreach ($between_class as $key => $value) {
+            $this_id = $value['id'];
+            $this_name = $value['type_name'];
+            $this_sort = ($key + 1);
+            $updateData = $updateData . "($this_id,'$this_name','$this_sort'),";
+        }
+
+        $sqlStr = "replace into `ad_class` (id,type_name,sort) values $updateData";
+        $sql  = rtrim($sqlStr, ",");
+
+        try {
+            $db->startTransaction();
+            $res3 = $db->rawQuery($sql);
+
+            if (is_array($res3)) {
+                $db->commit();
+                $return['code'] = 1;
+                exit(json_encode($return));
+            } else {
+                $db->rollback();
+                $return['code'] = 0;
+                $return['msg'] = $db->getLastError();
+                exit(json_encode($return));
+            }
+        } catch (\Exception $e) {
+            $return['code'] = 0;
+            $return['msg'] = $e;
+            exit(json_encode($return));
+        }
     } else {
         $return['code'] = 0;
         $return['msg'] = $db->getLastError();

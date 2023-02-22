@@ -88,14 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit(json_encode($return));
             }
 
-            $has_sort = $db->where('sort', trim($post['sort']))->get($type_text);
-
-            if ($has_sort) {
-                $return['code'] = 0;
-                $return['msg'] = '已有相同排序';
-                exit(json_encode($return));
-            }
-
             $insert = [
                 'type_id' => $post['type_id'],
                 'sort' => trim($post['sort']),
@@ -105,17 +97,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'link_url' => trim($post['link_url']),
                 'ad_status' => $post['ad_status'],
                 'remark' => trim($post['remark']),
-                'create_time' => date('Y-m-d H:i:s')
+                'create_time' => date('Y-m-d H:i:s'),
+                'modify' => 1
             ];
 
             try {
-                $res = $db->insert($type_text, $insert);
+                $addRes = $db->insert($type_text, $insert);
 
-                if ($res) {
-                    $return['code'] = 1;
-                    $return['msg'] = '新增成功';
-                    exit(json_encode($return));
-                } else {
+                if (!$addRes) {
                     $return['code'] = 0;
                     $return['msg'] = $db->getLastError();
                     exit(json_encode($return));
@@ -143,13 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
 
             try {
-                $res = $db->where('id', $post['id'])->delete($type_text);
+                $deleteRes = $db->where('id', $post['id'])->delete($type_text);
 
-                if ($res) {
-                    $return['code'] = 1;
-                    $return['msg'] = '刪除成功';
-                    exit(json_encode($return));
-                } else {
+                if (!$deleteRes) {
                     $return['code'] = 0;
                     $return['msg'] = $db->getLastError();
                     exit(json_encode($return));
@@ -172,15 +157,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit(json_encode($return));
             }
 
-            $this_id = $post['id'];
-            $has_sort = $db->where("id != $this_id")->where('sort', trim($post['sort']))->get($type_text);
-
-            if ($has_sort) {
-                $return['code'] = 0;
-                $return['msg'] = '已有相同排序';
-                exit(json_encode($return));
-            }
-
             $ad_list = $db->where('id', $post['id'])->get($type_text);
 
             if (empty($ad_list)) {
@@ -198,16 +174,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 'link_url' => trim($post['link_url']),
                 'ad_status' => $post['ad_status'],
                 'remark' => trim($post['remark']),
+                'modify' => 1
             ];
 
             try {
-                $res = $db->where('id', $post['id'])->update($type_text, $update);
+                $editRes = $db->where('id', $post['id'])->update($type_text, $update);
 
-                if ($res) {
-                    $return['code'] = 1;
-                    $return['msg'] = '編輯完成';
-                    exit(json_encode($return));
-                } else {
+                if (!$editRes) {
                     $return['code'] = 0;
                     $return['msg'] = $db->getLastError();
                     exit(json_encode($return));
@@ -224,5 +197,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $return['msg'] = '參數錯誤';
             exit(json_encode($return));
             break;
+    }
+
+    $between_list = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get($type_text);
+
+    $updateData = "";
+    foreach ($between_list as $key => $value) {
+        $this_id = $value['id'];
+        $this_type_id = $value['type_id'];
+        $this_sort = ($key + 1);
+        $this_image_url = $value['image_url'];
+        $this_real_name = $value['real_name'];
+        $this_show_name = $value['show_name'];
+        $this_link_url = $value['link_url'];
+        $this_ad_status = $value['ad_status'];
+        $this_click_number = $value['click_number'];
+        $this_remark = $value['remark'];
+        $this_create_time = $value['create_time'];
+        $this_modify = 0;
+        $updateData = $updateData . "($this_id,'$this_type_id','$this_sort','$this_image_url','$this_real_name','$this_show_name','$this_link_url','$this_ad_status','$this_click_number','$this_remark','$this_create_time','$this_modify'),";
+    }
+
+    $sqlStr = "replace into `$type_text` (id,type_id,sort,image_url,real_name,show_name,link_url,ad_status,click_number,remark,create_time,modify) values $updateData";
+    $sql  = rtrim($sqlStr, ",");
+
+    try {
+        $db->startTransaction();
+        $sortRes = $db->rawQuery($sql);
+
+        if (is_array($sortRes)) {
+            $db->commit();
+            $return['code'] = 1;
+            if ($addRes) {
+                $return['msg'] = '新增成功';
+            } else if ($deleteRes) {
+                $return['msg'] = '刪除成功';
+            } else if ($editRes) {
+                $return['msg'] = '編輯完成';
+            }
+            exit(json_encode($return));
+        } else {
+            $db->rollback();
+            $return['code'] = 0;
+            $return['msg'] = $db->getLastError();
+            exit(json_encode($return));
+        }
+    } catch (\Exception $e) {
+        $return['code'] = 0;
+        $return['msg'] = $e;
+        exit(json_encode($return));
     }
 }

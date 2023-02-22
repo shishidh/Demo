@@ -38,27 +38,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit(json_encode($return));
             }
 
-            $has_sort = $db->where('sort', trim($post['sort']))->get('ad_class');
-
-            if ($has_sort) {
-                $return['code'] = 0;
-                $return['msg'] = '已有相同排序';
-                exit(json_encode($return));
-            }
-
             $insert = [
                 'type_name' => trim($post['type_name']),
-                'sort' => trim($post['sort'])
+                'sort' => trim($post['sort']),
+                'modify' => 1
             ];
 
             try {
-                $res = $db->insert('ad_class', $insert);
+                $addRes = $db->insert('ad_class', $insert);
 
-                if ($res) {
-                    $return['code'] = 1;
-                    $return['msg'] = '新增成功';
-                    exit(json_encode($return));
-                } else {
+                if (!$addRes) {
                     $return['code'] = 0;
                     $return['msg'] = $db->getLastError();
                     exit(json_encode($return));
@@ -93,13 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             }
 
             try {
-                $res = $db->where('id', $post['id'])->delete('ad_class');
+                $deleteRes = $db->where('id', $post['id'])->delete('ad_class');
 
-                if ($res) {
-                    $return['code'] = 1;
-                    $return['msg'] = '刪除成功';
-                    exit(json_encode($return));
-                } else {
+                if (!$deleteRes) {
                     $return['code'] = 0;
                     $return['msg'] = $db->getLastError();
                     exit(json_encode($return));
@@ -122,15 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 exit(json_encode($return));
             }
 
-            $this_id = $post['id'];
-            $has_sort = $db->where ("id != $this_id")->where('sort', trim($post['sort']))->get('ad_class');
-
-            if ($has_sort) {
-                $return['code'] = 0;
-                $return['msg'] = '已有相同排序';
-                exit(json_encode($return));
-            }
-
             $ad_class = $db->where('id', $post['id'])->get('ad_class');
 
             if (empty($ad_class)) {
@@ -141,17 +117,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
             $update = [
                 'type_name' => trim($post['type_name']),
-                'sort' => trim($post['sort'])
+                'sort' => trim($post['sort']),
+                'modify' => 1
             ];
 
             try {
-                $res = $db->where('id', $post['id'])->update('ad_class', $update);
+                $editRes = $db->where('id', $post['id'])->update('ad_class', $update);
 
-                if ($res) {
-                    $return['code'] = 1;
-                    $return['msg'] = '編輯完成';
-                    exit(json_encode($return));
-                } else {
+                if (!$editRes) {
                     $return['code'] = 0;
                     $return['msg'] = $db->getLastError();
                     exit(json_encode($return));
@@ -168,5 +141,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             $return['msg'] = '參數錯誤';
             exit(json_encode($return));
             break;
+    }
+
+    $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get('ad_class');
+
+    $updateData = "";
+    foreach ($between_class as $key => $value) {
+        $this_id = $value['id'];
+        $this_name = $value['type_name'];
+        $this_sort = ($key + 1);
+        $this_modify = 0;
+        $updateData = $updateData . "($this_id,'$this_name','$this_sort','$this_modify'),";
+    }
+
+    $sqlStr = "replace into `ad_class` (id,type_name,sort,modify) values $updateData";
+    $sql  = rtrim($sqlStr, ",");
+
+    try {
+        $db->startTransaction();
+        $sortRes = $db->rawQuery($sql);
+
+        if (is_array($sortRes)) {
+            $db->commit();
+            $return['code'] = 1;
+            if ($addRes) {
+                $return['msg'] = '新增成功';
+            } else if ($deleteRes) {
+                $return['msg'] = '刪除成功';
+            } else if ($editRes) {
+                $return['msg'] = '編輯完成';
+            }
+            exit(json_encode($return));
+        } else {
+            $db->rollback();
+            $return['code'] = 0;
+            $return['msg'] = $db->getLastError();
+            exit(json_encode($return));
+        }
+    } catch (\Exception $e) {
+        $return['code'] = 0;
+        $return['msg'] = $e;
+        exit(json_encode($return));
     }
 }
