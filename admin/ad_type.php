@@ -142,8 +142,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             exit(json_encode($return));
             break;
     }
+    
     if ($post['type'] == 'edit') {
-        $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'asc')->get('ad_class');
+        if ($ad_class[0]['sort'] > trim($post['sort'])) {
+            $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get('ad_class');
+        } else {
+            $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'asc')->get('ad_class');
+        }
     } else {
         $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get('ad_class');
     }

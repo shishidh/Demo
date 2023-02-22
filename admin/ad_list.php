@@ -200,7 +200,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
     if ($post['type'] == 'edit') {
-        $between_list = $db->orderBy('sort', 'asc')->orderBy('modify', 'asc')->get($type_text);
+        if ($ad_list[0]['sort'] > trim($post['sort'])) {
+            $between_list = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get($type_text);
+        } else {
+            $between_list = $db->orderBy('sort', 'asc')->orderBy('modify', 'asc')->get($type_text);
+        }
     } else {
         $between_list = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get($type_text);
     }
