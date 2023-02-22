@@ -53,10 +53,11 @@ try {
             $this_id = $value['id'];
             $this_name = $value['type_name'];
             $this_sort = ($key + 1);
-            $updateData = $updateData . "($this_id,'$this_name','$this_sort'),";
+            $this_modify = 0;
+            $updateData = $updateData . "($this_id,'$this_name','$this_sort','$this_modify'),";
         }
 
-        $sqlStr = "replace into `ad_class` (id,type_name,sort) values $updateData";
+        $sqlStr = "replace into `ad_class` (id,type_name,sort,modify) values $updateData";
         $sql  = rtrim($sqlStr, ",");
 
         try {

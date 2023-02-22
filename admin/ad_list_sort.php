@@ -80,10 +80,11 @@ try {
             $this_click_number = $value['click_number'];
             $this_remark = $value['remark'];
             $this_create_time = $value['create_time'];
-            $updateData = $updateData . "($this_id,'$this_type_id','$this_sort','$this_image_url','$this_real_name','$this_show_name','$this_link_url','$this_ad_status','$this_click_number','$this_remark','$this_create_time'),";
+            $this_modify = 0;
+            $updateData = $updateData . "($this_id,'$this_type_id','$this_sort','$this_image_url','$this_real_name','$this_show_name','$this_link_url','$this_ad_status','$this_click_number','$this_remark','$this_create_time','$this_modify'),";
         }
 
-        $sqlStr = "replace into `$type_text` (id,type_id,sort,image_url,real_name,show_name,link_url,ad_status,click_number,remark,create_time) values $updateData";
+        $sqlStr = "replace into `$type_text` (id,type_id,sort,image_url,real_name,show_name,link_url,ad_status,click_number,remark,create_time,modify) values $updateData";
         $sql  = rtrim($sqlStr, ",");
 
         try {
