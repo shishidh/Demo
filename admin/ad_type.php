@@ -142,8 +142,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             exit(json_encode($return));
             break;
     }
-
-    $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get('ad_class');
+    if ($post['type'] == 'edit') {
+        if ($ad_class['sort'] > trim($post['sort'])) {
+            $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get('ad_class');
+        } else {
+            $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'asc')->get('ad_class');
+        }
+    } else {
+        $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get('ad_class');
+    }
 
     $updateData = "";
     foreach ($between_class as $key => $value) {

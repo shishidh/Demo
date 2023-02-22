@@ -199,7 +199,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             break;
     }
 
-    $between_list = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get($type_text);
+    if ($post['type'] == 'edit') {
+        if ($ad_list['sort'] > trim($post['sort'])) {
+            $between_list = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get($type_text);
+        } else {
+            $between_list = $db->orderBy('sort', 'asc')->orderBy('modify', 'asc')->get($type_text);
+        }
+    } else {
+        $between_list = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get($type_text);
+    }
 
     $updateData = "";
     foreach ($between_list as $key => $value) {
