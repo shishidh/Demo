@@ -143,11 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             break;
     }
     if ($post['type'] == 'edit') {
-        if ($ad_class['sort'] > trim($post['sort'])) {
-            $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get('ad_class');
-        } else {
-            $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'asc')->get('ad_class');
-        }
+        $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'asc')->get('ad_class');
     } else {
         $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get('ad_class');
     }
