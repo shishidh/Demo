@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             exit(json_encode($return));
             break;
     }
-    
+
     if ($post['type'] == 'edit') {
         if ($ad_class[0]['sort'] > trim($post['sort'])) {
             $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get('ad_class');
@@ -153,42 +153,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $between_class = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get('ad_class');
     }
 
-    $updateData = "";
-    foreach ($between_class as $key => $value) {
-        $this_id = $value['id'];
-        $this_name = $value['type_name'];
-        $this_sort = ($key + 1);
-        $this_modify = 0;
-        $updateData = $updateData . "($this_id,'$this_name','$this_sort','$this_modify'),";
-    }
+    if (count($between_class) > 0) {
+        $updateData = "";
+        foreach ($between_class as $key => $value) {
+            $this_id = $value['id'];
+            $this_name = $value['type_name'];
+            $this_sort = ($key + 1);
+            $this_modify = 0;
+            $updateData = $updateData . "($this_id,'$this_name','$this_sort','$this_modify'),";
+        }
 
-    $sqlStr = "replace into `ad_class` (id,type_name,sort,modify) values $updateData";
-    $sql  = rtrim($sqlStr, ",");
+        $sqlStr = "replace into `ad_class` (id,type_name,sort,modify) values $updateData";
+        $sql  = rtrim($sqlStr, ",");
 
-    try {
-        $db->startTransaction();
-        $sortRes = $db->rawQuery($sql);
+        try {
+            $db->startTransaction();
+            $sortRes = $db->rawQuery($sql);
 
-        if (is_array($sortRes)) {
-            $db->commit();
-            $return['code'] = 1;
-            if ($addRes) {
-                $return['msg'] = '新增成功';
-            } else if ($deleteRes) {
-                $return['msg'] = '刪除成功';
-            } else if ($editRes) {
-                $return['msg'] = '編輯完成';
+            if (is_array($sortRes)) {
+                $db->commit();
+                $return['code'] = 1;
+                if ($addRes) {
+                    $return['msg'] = '新增成功';
+                } else if ($deleteRes) {
+                    $return['msg'] = '刪除成功';
+                } else if ($editRes) {
+                    $return['msg'] = '編輯完成';
+                }
+                exit(json_encode($return));
+            } else {
+                $db->rollback();
+                $return['code'] = 0;
+                $return['msg'] = $db->getLastError();
+                exit(json_encode($return));
             }
-            exit(json_encode($return));
-        } else {
-            $db->rollback();
+        } catch (\Exception $e) {
             $return['code'] = 0;
-            $return['msg'] = $db->getLastError();
+            $return['msg'] = $e;
             exit(json_encode($return));
         }
-    } catch (\Exception $e) {
-        $return['code'] = 0;
-        $return['msg'] = $e;
-        exit(json_encode($return));
+    } else {
+        if ($deleteRes) {
+            $return['code'] = 1;
+            $return['msg'] = '刪除成功';
+            exit(json_encode($return));
+        }
     }
 }

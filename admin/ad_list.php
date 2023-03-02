@@ -209,50 +209,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $between_list = $db->orderBy('sort', 'asc')->orderBy('modify', 'desc')->get($type_text);
     }
 
-    $updateData = "";
-    foreach ($between_list as $key => $value) {
-        $this_id = $value['id'];
-        $this_type_id = $value['type_id'];
-        $this_sort = ($key + 1);
-        $this_image_url = $value['image_url'];
-        $this_real_name = $value['real_name'];
-        $this_show_name = $value['show_name'];
-        $this_link_url = $value['link_url'];
-        $this_ad_status = $value['ad_status'];
-        $this_click_number = $value['click_number'];
-        $this_remark = $value['remark'];
-        $this_create_time = $value['create_time'];
-        $this_modify = 0;
-        $updateData = $updateData . "($this_id,'$this_type_id','$this_sort','$this_image_url','$this_real_name','$this_show_name','$this_link_url','$this_ad_status','$this_click_number','$this_remark','$this_create_time','$this_modify'),";
-    }
+    if (count($between_list) > 0) {
+        $updateData = "";
+        foreach ($between_list as $key => $value) {
+            $this_id = $value['id'];
+            $this_type_id = $value['type_id'];
+            $this_sort = ($key + 1);
+            $this_image_url = $value['image_url'];
+            $this_real_name = $value['real_name'];
+            $this_show_name = $value['show_name'];
+            $this_link_url = $value['link_url'];
+            $this_ad_status = $value['ad_status'];
+            $this_click_number = $value['click_number'];
+            $this_remark = $value['remark'];
+            $this_create_time = $value['create_time'];
+            $this_modify = 0;
+            $updateData = $updateData . "($this_id,'$this_type_id','$this_sort','$this_image_url','$this_real_name','$this_show_name','$this_link_url','$this_ad_status','$this_click_number','$this_remark','$this_create_time','$this_modify'),";
+        }
 
-    $sqlStr = "replace into `$type_text` (id,type_id,sort,image_url,real_name,show_name,link_url,ad_status,click_number,remark,create_time,modify) values $updateData";
-    $sql  = rtrim($sqlStr, ",");
+        $sqlStr = "replace into `$type_text` (id,type_id,sort,image_url,real_name,show_name,link_url,ad_status,click_number,remark,create_time,modify) values $updateData";
+        $sql  = rtrim($sqlStr, ",");
 
-    try {
-        $db->startTransaction();
-        $sortRes = $db->rawQuery($sql);
+        try {
+            $db->startTransaction();
+            $sortRes = $db->rawQuery($sql);
 
-        if (is_array($sortRes)) {
-            $db->commit();
-            $return['code'] = 1;
-            if ($addRes) {
-                $return['msg'] = '新增成功';
-            } else if ($deleteRes) {
-                $return['msg'] = '刪除成功';
-            } else if ($editRes) {
-                $return['msg'] = '編輯完成';
+            if (is_array($sortRes)) {
+                $db->commit();
+                $return['code'] = 1;
+                if ($addRes) {
+                    $return['msg'] = '新增成功';
+                } else if ($deleteRes) {
+                    $return['msg'] = '刪除成功';
+                } else if ($editRes) {
+                    $return['msg'] = '編輯完成';
+                }
+                exit(json_encode($return));
+            } else {
+                $db->rollback();
+                $return['code'] = 0;
+                $return['msg'] = $db->getLastError();
+                exit(json_encode($return));
             }
-            exit(json_encode($return));
-        } else {
-            $db->rollback();
+        } catch (\Exception $e) {
             $return['code'] = 0;
-            $return['msg'] = $db->getLastError();
+            $return['msg'] = $e;
             exit(json_encode($return));
         }
-    } catch (\Exception $e) {
-        $return['code'] = 0;
-        $return['msg'] = $e;
-        exit(json_encode($return));
+    } else {
+        if ($deleteRes) {
+            $return['code'] = 1;
+            $return['msg'] = '刪除成功';
+            exit(json_encode($return));
+        }
     }
 }
